@@ -1,0 +1,8 @@
+prefix=/home/sunny/catkin_ws/install
+
+Name: fr3_move
+Description: Description of fr3_move
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
