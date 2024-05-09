@@ -410,6 +410,12 @@ catkin_DIR:PATH=/opt/ros/noetic/share/catkin/cmake
 cpp_common_DIR:PATH=/opt/ros/noetic/share/cpp_common/cmake
 
 //Value Computed by CMake
+force_msg_BINARY_DIR:STATIC=/home/sunny/catkin_ws/build/force_msg
+
+//Value Computed by CMake
+force_msg_SOURCE_DIR:STATIC=/home/sunny/catkin_ws/src/force_msg
+
+//Value Computed by CMake
 fr3_move_BINARY_DIR:STATIC=/home/sunny/catkin_ws/build/fr3_move
 
 //Value Computed by CMake
@@ -550,6 +556,9 @@ rostime_DIR:PATH=/opt/ros/noetic/share/rostime/cmake
 
 //The directory containing a CMake configuration file for sensor_msgs.
 sensor_msgs_DIR:PATH=/opt/ros/noetic/share/sensor_msgs/cmake
+
+//The directory containing a CMake configuration file for serial.
+serial_DIR:PATH=/opt/ros/noetic/share/serial/cmake
 
 //The directory containing a CMake configuration file for std_msgs.
 std_msgs_DIR:PATH=/opt/ros/noetic/share/std_msgs/cmake
@@ -732,7 +741,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=10
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=11
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

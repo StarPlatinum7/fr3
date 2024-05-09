@@ -51,16 +51,16 @@ class motion:
             sys.exit()
 
         rospy.Subscriber('/force_msg', Float32MultiArray, self.force_callback)
-        # 自检力传感器
-        # print("正在检查力传感器连接...")
-        # rospy.sleep(0.5)
-        # if self.force_data == [0.0,0.0,0.0,0.0,0.0,0.0]:
-        #     print("无法获取力传感器数据，程序退出")
-        #     print("请检查力传感器连接,是否开启力传感器节点：rosrun force_msg force_msg_node ")
-        #     #退出程序
-        #     sys.exit()
-        # else:
-        #     print("力传感器连接成功，程序正常运行")
+        #自检力传感器
+        print("正在检查力传感器连接...")
+        rospy.sleep(0.5)
+        if self.force_data == [0.0,0.0,0.0,0.0,0.0,0.0]:
+            print("无法获取力传感器数据，程序退出")
+            print("请检查力传感器连接,是否开启力传感器节点：rosrun force_msg force_msg_node ")
+            #退出程序
+            sys.exit()
+        else:
+            print("力传感器连接成功，程序正常运行")
 
     #控制夹爪开合,true是开,false是合
     def catcher(self,open = True):
@@ -139,10 +139,11 @@ class motion:
         # 打开夹爪
         self.catcher(True)
         rospy.sleep(2)
-        
+
+        #闭合夹爪
         self.catcher(False)
 
-    def move_to_begin(self):
+    def move_to_begin(self,i,force):
         #begin
         J1=[133.8429870605468, -330.023681640625, 326.854736328125, -178.702194213867, -1.415433406829834, 136.9098968505859]
         #top 14
@@ -153,18 +154,44 @@ class motion:
         rospy.sleep(1)
 
         #move to the begin position
-        self.xyzmove('z',-40,20)
+        self.xyzmove(direction='z',distance=-40,speed=20)
+        
+        #通过距离改变刮刀的力
+        # if i <= 20:
+        #     self.xyzmove(direction='z',distance=-1*25*i,speed=5)
+        # else:
+        #     self.xyzmove(direction='z',distance=(25*(i-10)),speed=5)
+        # self.xyzmove(direction='z',distance=-85,speed=10)
+
+        # rospy.sleep(3)
+
+        #记录划火柴前的力传感器数据
+        self.force_data_init = self.force_data
+        # 开始记录数据
+        self.is_recording = True
+        self.timeinit = time.time()
+        # 微调距离
+        while abs(self.force_data[2] - self.force_data_init[2]) <= force:
+            RV = self.Con_SOCKETINFO.recv(1024)
+            if (int.from_bytes(RV[234:237], byteorder="little") == 1):
+                self.xyzmove(direction='z',distance=-1,speed=30)
+        
+        print("force adjust success")
+        rospy.sleep(1)
        
         
 
 
-    def scrape(self):
+    def scrape(self,distance,speed):
 
         #scrape 30
-        self.xyzmove('x',-30,20)
+        self.xyzmove(direction='x',distance=distance,speed=int(speed))
+        self.is_recording = False
+        rospy.sleep(1)
       
         
-        self.xyzmove('z',40,20)
+        #after scrape top 40
+        self.xyzmove(direction='z',distance=40,speed=20)
        
 
         

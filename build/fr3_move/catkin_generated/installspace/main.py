@@ -16,14 +16,18 @@ if __name__ == "__main__":
         force = 0.1    # 力(N)
 
         match = motion()
+        match.catcher(False)
         # 循环20次1
         x = input("请输入实验次数：")
         for i in range(int(x)):
                 print("第"+str(i+1)+"次实验开始")
-                match.catch_knife()
-
+                # match.catch_knife()
+                
+                match.move_to_begin()
+                match.scrape()
+                #match.get_state()
+                match.drop_knife()
                 # 保存数据
-
                 
                 
                 match.clean()

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import socket
 
-class match:
+class motion:
 
 
     def __init__(self):
@@ -52,15 +52,15 @@ class match:
 
         rospy.Subscriber('/force_msg', Float32MultiArray, self.force_callback)
         # 自检力传感器
-        print("正在检查力传感器连接...")
-        rospy.sleep(0.5)
-        if self.force_data == [0.0,0.0,0.0,0.0,0.0,0.0]:
-            print("无法获取力传感器数据，程序退出")
-            print("请检查力传感器连接,是否开启力传感器节点：rosrun force_msg force_msg_node ")
-            #退出程序
-            sys.exit()
-        else:
-            print("力传感器连接成功，程序正常运行")
+        # print("正在检查力传感器连接...")
+        # rospy.sleep(0.5)
+        # if self.force_data == [0.0,0.0,0.0,0.0,0.0,0.0]:
+        #     print("无法获取力传感器数据，程序退出")
+        #     print("请检查力传感器连接,是否开启力传感器节点：rosrun force_msg force_msg_node ")
+        #     #退出程序
+        #     sys.exit()
+        # else:
+        #     print("力传感器连接成功，程序正常运行")
 
     #控制夹爪开合,true是开,false是合
     def catcher(self,open = True):
@@ -92,55 +92,37 @@ class match:
             time_data_table = time_pddata.to_frame().T
             self.time_table = pd.concat([self.time_table,time_data_table],axis=0,ignore_index=True)
 
-    def xyzmove(self,direction,distance,speed = 0.1):
-        if direction == 'x' and distance > 0:
-            n_pos = [0.2,0.0,0.0,0.0,0.0,0.0]   
-        elif direction == 'y' and distance > 0:
-            n_pos = [0.0,0.2,0.0,0.0,0.0,0.0]
-        elif direction == 'z' and distance > 0:
-            n_pos = [0.0,0.0,0.2,0.0,0.0,0.0]
-        elif direction == 'x' and distance < 0:
-            n_pos = [-0.2,0.0,0.0,0.0,0.0,0.0]
-        elif direction == 'y' and distance < 0:
-            n_pos = [0.0,-0.2,0.0,0.0,0.0,0.0]
-        elif direction == 'z' and distance < 0:
-            n_pos = [0.0,0.0,-0.2,0.0,0.0,0.0]
-        elif direction == 'xh' and distance > 0:
-            n_pos = [2.0,0.0,0.0,0.0,0.0,0.0]
-        elif direction == 'zf' and distance < 0:
-            n_pos = [0.0,0.0,-0.05,0.0,0.0,0.0]  
-        
-        gain = [1.0,1.0,1.0,0.0,0.0,0.0]   # 位姿增量比例系数，仅在增量运动下生效，范围[0~1]；
-        t = 0.001 # 指令周期，单位[s]，[0.001~0.016]；      
-        success = False    
-        for i in range(abs(distance)):    
-            #2.10. 笛卡尔空间伺服模式运动
-            self.robot.ServoCart(1, n_pos, gain, 0.0, 0.0, t, 0.0, 0.0)
-            # ServoCartdata = 'ServoCart(1,'+str(n_pos[0])+','+str(n_pos[1])+','+str(n_pos[2])+','+str(n_pos[3])+','+str(n_pos[4])+','+str(n_pos[5])+','+str(gain[0])+','+str(gain[1])+','+str(gain[2])+','+str(gain[3])+','+str(gain[4])+','+str(gain[5])+','+str(0.0)+','+str(0.0)+','+str(t)+','+str(0.0)+','+str(0.0)+')'
-            # ServoCart = '/f/bIII52III341III'+str(len(ServoCartdata))+'III'+ServoCartdata+'III/b/f'
 
-            # r = self.Con_SOCKET.send(ServoCart.encode('UTF-8'))
-            # RCV = self.Con_SOCKET.recv(1024)
-            # waitms = 'WaitMs('+str(int(100))+')'
-            # wait = '/f/bIII52III304III'+str(len(waitms))+'III'+waitms+'III/b/f'
-            # self.Con_SOCKET.send(wait.encode('UTF-8'))
-            # RCV = self.Con_SOCKET.recv(1024)
-            # print(RCV)
-            #6.9. 获取TCP反馈速度
-            self.speed = self.robot.GetActualTCPSpeed()
-            #6.7. 获取TCP反馈合速度
-            self.CompositeSpeed = self.robot.GetActualTCPCompositeSpeed()
-            self.speed = self.speed[1:7] + self.CompositeSpeed[1:3]
-
-            self.robot.WaitMs(speed)
-        return success
-
-    def dotmove(self,joint_angle,position,speed = 100.0):  
+    def dotmove(self,desc_pos,speed):  
         #利用sdk的方式控制机械臂运动
-        eP1=[0.000,0.000,0.000,0.000]
-        dP1=[0.000,0.000,0.000,0.000,0.000,0.000]
-        #2.3. 笛卡尔空间直线运动
-        ret = self.robot.MoveL(joint_angle,position,0,0,speed,180.0,100.0,-1.0,eP1,0,0,dP1)
+        # eP1=[0.000,0.000,0.000,0.000]
+        # dP1=[0.000,0.000,0.000,0.000,0.000,0.000]
+        # #2.3. 笛卡尔空间直线运动
+        # ret = self.robot.MoveL(joint_angle,position,0,0,speed,180.0,100.0,-1.0,eP1,0,0,dP1)
+        tool = 0 #工具坐标系编号
+        user = 0 #工件坐标系编号
+        ret = self.robot.MoveL(desc_pos, tool, user,vel=speed)   #笛卡尔空间直线运动
+    
+    def xyzmove(self,direction,distance,speed):
+        rospy.sleep(1)
+        begin_pos = list(self.robot.GetActualTCPPose(1)[1])
+
+        final_pos = begin_pos.copy()
+        if direction=='x':
+            final_pos[0] += distance
+        elif direction=='y':
+            final_pos[1] += distance
+        elif direction=='z':
+            final_pos[2] += distance
+        elif direction=='rx':
+            final_pos[3] +=distance
+        elif direction=='ry':
+            final_pos[4] +=distance
+        elif direction=='rz':
+            final_pos[5] +=distance
+        self.dotmove(final_pos,speed)
+        rospy.sleep(1)
+
 
     def get_state(self):
         #反馈当前状态
@@ -156,45 +138,47 @@ class match:
     def catch_knife(self):
         # 打开夹爪
         self.catcher(True)
-        rospy.sleep(1)
-        # catch_pos on the top 10cm
-        J1=[56.56022780012376, -85.33809850711634, 54.43127320544554, -59.7358205058787, -91.87333210860149, -75.5430799427599]
-        P1=[-100.4511566162109, -331.2756042480468, 443.5514831542968, 178.3462677001953, -1.08969461917877, -137.8912506103515]
-        self.dotmove(J1,P1,100.0)
-        J2 = [55.88647219214109, -92.18812848081683, 87.91303275835396, -87.2127359220297, -91.41081857209159, -76.92496422493812]
-        P2 = [-104.4608993530273, -331.6921081542968, 340.4016723632812, 178.962661743164, -1.768772959709167, -137.1906585693359]
-        # 下降10cm
-        # self.xyzmove(direction='z',distance=-500,speed=5)
-        self.dotmove(J2,P2,50.0)
-        self.xyzmove(direction='z',distance=-60,speed=20)
-        self.xyzmove(direction='y',distance=5,speed=15)
-
-        # 等待动作是否完成
-        rev = int.from_bytes(self.Con_SOCKETINFO.recv(1024)[234:237], byteorder="little")
-        while (1):
-            rev = int.from_bytes(self.Con_SOCKETINFO.recv(1024)[234:237], byteorder="little") 
-            if (rev == 1):
-                break
-            else:
-                continue
-        
-        # 闭合夹爪
-        self.robot.WaitMs(2000)
         rospy.sleep(2)
+        
         self.catcher(False)
 
-        rospy.sleep(3)
-        # 上升10cm
-        # self.xyzmove(direction='z',distance=500,speed=15)
-        self.dotmove(J1,P1,50.0)
+    def move_to_begin(self):
+        #begin
+        J1=[133.8429870605468, -330.023681640625, 326.854736328125, -178.702194213867, -1.415433406829834, 136.9098968505859]
+        #top 14
+        J2=J1.copy()
+        J2[2]+=40
 
-        rev = int.from_bytes(self.Con_SOCKETINFO.recv(1024)[234:237], byteorder="little")
-        while (1):
-            rev = int.from_bytes(self.Con_SOCKETINFO.recv(1024)[234:237], byteorder="little") 
-            if (rev == 1):
-                break
-            else:
-                continue
+        self.dotmove(J2,20)
+        rospy.sleep(1)
+
+        #move to the begin position
+        self.xyzmove('z',-40,20)
+       
+        
+
+
+    def scrape(self):
+
+        #scrape 30
+        self.xyzmove('x',-30,20)
+      
+        
+        self.xyzmove('z',40,20)
+       
+
+        
+    def drop_knife(self):
+        drop_pos=[286.0150756835937, -276.2381286621093, 400.8870849609375, -178.0904541015625, 3.782169580459594, 166.8185272216797]
+        #move to the drop dot
+        self.dotmove(drop_pos,30)
+        rospy.sleep(1)
+        self.catcher(True)
+
+    def back_to_begin(self):
+        begin_pos=[135.5006866455078, -440.7455139160156, 354.004180908203, -161.8565673828125, 18.43313598632812, 135.1242523193359]
+        self.dotmove(begin_pos,30)
+
     # 清除数据
     def clean(self):
         self.force_table = self.force_table.drop(self.force_table.index,inplace=True)

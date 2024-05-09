@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/sunny/catkin_ws/build/gtest/cmake_install.cmake")
   include("/home/sunny/catkin_ws/build/learning_launch/cmake_install.cmake")
+  include("/home/sunny/catkin_ws/build/force_msg/cmake_install.cmake")
   include("/home/sunny/catkin_ws/build/fr3_move/cmake_install.cmake")
   include("/home/sunny/catkin_ws/build/learning_parameter/cmake_install.cmake")
   include("/home/sunny/catkin_ws/build/learning_service/cmake_install.cmake")

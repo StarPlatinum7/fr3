@@ -6,6 +6,7 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("learning_launch")
+subdirs("force_msg")
 subdirs("fr3_move")
 subdirs("learning_parameter")
 subdirs("learning_service")
