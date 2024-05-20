@@ -19,7 +19,7 @@ class motion:
         rospy.init_node('motion', anonymous=True)
 
         rospy.Subscriber('/force_msg', Float32MultiArray, self.force_callback)
-
+        
         # 初始化变量
         self.robot = Robot.RPC('192.168.58.2')
         self.force_data = [0.0,0.0,0.0,0.0,0.0,0.0]
@@ -82,16 +82,24 @@ class motion:
         force_pddata = pd.Series(self.force_data,index=['Fx','Fy','Fz','Mx','My','Mz'])
         if self.is_recording == True:
             force_data_table = force_pddata.to_frame().T
-            self.force_table = pd.concat([self.force_table,force_data_table],axis=0,ignore_index=True)
+            self.force_table = pd.concat([
+                self.force_table.dropna(axis=1, how='all'),
+                force_data_table.dropna(axis=1, how='all')
+            ], axis=0, ignore_index=True)
 
-            speed_pddata = pd.Series(self.speed,index=['Speed x','Speed y','Speed z','OriSpeed x','OriSpeed y','OriSpeed z','线性速度','姿态速度'])
+            speed_pddata = pd.Series(self.speed, index=['Speed x', 'Speed y', 'Speed z', 'OriSpeed x', 'OriSpeed y', 'OriSpeed z', '线性速度', '姿态速度'])
             speed_data_table = speed_pddata.to_frame().T
-            self.speed_table = pd.concat([self.speed_table,speed_data_table],axis=0,ignore_index=True)
+            self.speed_table = pd.concat([
+                self.speed_table.dropna(axis=1, how='all'),
+                speed_data_table.dropna(axis=1, how='all')
+            ], axis=0, ignore_index=True)
 
-            time_pddata = pd.Series(timenow,index=['time'])
+            time_pddata = pd.Series(timenow, index=['time'])
             time_data_table = time_pddata.to_frame().T
-            self.time_table = pd.concat([self.time_table,time_data_table],axis=0,ignore_index=True)
-
+            self.time_table = pd.concat([
+                self.time_table.dropna(axis=1, how='all'),
+                time_data_table.dropna(axis=1, how='all')
+            ], axis=0, ignore_index=True)   
 
     def dotmove(self,desc_pos,speed):  
         #利用sdk的方式控制机械臂运动

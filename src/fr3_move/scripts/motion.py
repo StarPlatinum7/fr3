@@ -19,7 +19,7 @@ class motion:
         rospy.init_node('motion', anonymous=True)
 
         rospy.Subscriber('/force_msg', Float32MultiArray, self.force_callback)
-
+        
         # 初始化变量
         self.robot = Robot.RPC('192.168.58.2')
         self.force_data = [0.0,0.0,0.0,0.0,0.0,0.0]

@@ -11,7 +11,7 @@ from motion import motion
 import os
 
 if __name__ == "__main__":
-        distance = 20   # 距离(mm)
+        distance = 22   # 距离(mm)
         speed = 0.15      # 速度(m/s)
         force = 0.1    # 力(N)
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
                 # 保存数据
                 now = time.strftime('%m%d-%H%M%S', time.localtime())
-                print("实验结束，正在保存数据...请注意放置火柴！！！！")
+                print("实验结束，正在保存数据...请注意放置！！！！")
                 state = input("请输入实验状态: 1.无现象，成功刮取 2.  3.  4. 5. 6.其他现象 7.实验失败不记录数据 0.exit \n")
                 if state == '7':
                         print("实验失败，数据不保存")

@@ -41,11 +41,13 @@ int main(int argc, char** argv)
 		uint8_t temp[8] = REQ_FLOAT_MSG;	//read float
 		port.write(temp, 8);
 		usleep(100000);
-		cout<<"---------"<<endl;
+		//关闭打印
+		//cout<<"---------"<<endl;
 		msg_m.GetMsg(floattmp);
 		for (int i = 0 ; i <= 5; i++){
 			receivedFloat.data[i] = floattmp[i];
-			cout << floattmp[i]<<endl;
+			//关闭打印
+			//cout << floattmp[i]<<endl;
 		}	
 		force_pub.publish(receivedFloat);
 	}

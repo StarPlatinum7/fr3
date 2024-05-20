@@ -11,7 +11,7 @@ from motion import motion
 import os
 
 if __name__ == "__main__":
-        distance = 20   # 距离(mm)
+        distance = 22   # 距离(mm)
         speed = 0.15      # 速度(m/s)
         force = 0.1    # 力(N)
 
@@ -24,10 +24,10 @@ if __name__ == "__main__":
 
                 #experiment begin
                 match.catch_knife()
-                # match.move_to_begin(i,force)
-                # match.scrape(distance,2/speed)
-                match.get_state()
-                # match.drop_knife()
+                match.move_to_begin(i,force)
+                match.scrape(distance,2/speed)
+                #match.get_state()
+                match.drop_knife()
 
                 # 保存数据
                 now = time.strftime('%m%d-%H%M%S', time.localtime())
