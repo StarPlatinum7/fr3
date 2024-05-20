@@ -24,10 +24,10 @@ if __name__ == "__main__":
 
                 #experiment begin
                 match.catch_knife()
-                match.move_to_begin(i,force)
-                match.scrape(distance,2/speed)
-                #match.get_state()
-                match.drop_knife()
+                # match.move_to_begin(i,force)
+                # match.scrape(distance,2/speed)
+                match.get_state()
+                # match.drop_knife()
 
                 # 保存数据
                 now = time.strftime('%m%d-%H%M%S', time.localtime())

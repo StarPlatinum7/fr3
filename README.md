@@ -1,5 +1,6 @@
 ## 每次运行之前：
-
+- `internet`:`sudo dhclient ens33`
+- `192.168.58.2`
 - 连接`usb`到虚拟机：`sillicon cp2102`
 - 依次运行
 
