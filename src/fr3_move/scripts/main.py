@@ -11,23 +11,24 @@ from motion import motion
 import os
 
 if __name__ == "__main__":
-        distance = 22   # 距离(mm)
+        distance = 35   # 距离(mm)
         speed = 0.15      # 速度(m/s)
         force = 0.1    # 力(N)
 
         match = motion()
-        match.catcher(False)
+        #match.catcher(False)
+        #match.catch_knife()
         # 循环20次1
         x = input("请输入实验次数：")
         for i in range(int(x)):
                 print("第"+str(i+1)+"次实验开始")
 
                 #experiment begin
-                match.catch_knife()
+                #match.catch_knife()
                 match.move_to_begin(i,force)
                 match.scrape(distance,2/speed)
                 #match.get_state()
-                match.drop_knife()
+                #match.drop_knife()
 
                 # 保存数据
                 now = time.strftime('%m%d-%H%M%S', time.localtime())

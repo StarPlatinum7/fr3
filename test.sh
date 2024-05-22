@@ -13,4 +13,4 @@ sleep 2 # 确保节点启动
 
 # 运行 Python 脚本
 
-/usr/local/bin/python3.10 ~/catkin_ws/src/fr3_move/scripts//main.py
+/usr/local/bin/python3.10 ~/catkin_ws/src/fr3_move/scripts/main.py

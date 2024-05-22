@@ -102,9 +102,6 @@ class motion:
             ], axis=0, ignore_index=True)   
 
     def dotmove(self,desc_pos,speed):  
-        #利用sdk的方式控制机械臂运动
-        # eP1=[0.000,0.000,0.000,0.000]
-        # dP1=[0.000,0.000,0.000,0.000,0.000,0.000]
         # #2.3. 笛卡尔空间直线运动
         # ret = self.robot.MoveL(joint_angle,position,0,0,speed,180.0,100.0,-1.0,eP1,0,0,dP1)
         tool = 0 #工具坐标系编号
@@ -146,14 +143,16 @@ class motion:
     def catch_knife(self):
         # 打开夹爪
         self.catcher(True)
-        rospy.sleep(2)
+        rospy.sleep(4)
 
         #闭合夹爪
         self.catcher(False)
+        rospy.sleep(1)
+
 
     def move_to_begin(self,i,force):
         #begin
-        J1=[133.8429870605468, -330.023681640625, 326.854736328125, -178.702194213867, -1.415433406829834, 136.9098968505859]
+        J1=[110.7085678100586, -344.7763671875, 292.5274047851562, -178.5812835693359, 0.40011101961135864, 136.7396697998047]
         #top 14
         J2=J1.copy()
         J2[2]+=40
@@ -173,16 +172,16 @@ class motion:
 
         # rospy.sleep(3)
 
-        #记录划火柴前的力传感器数据
+        #记录开始时力传感器数据
         self.force_data_init = self.force_data
         # 开始记录数据
         self.is_recording = True
         self.timeinit = time.time()
         # 微调距离
-        while abs(self.force_data[2] - self.force_data_init[2]) <= force:
-            RV = self.Con_SOCKETINFO.recv(1024)
-            if (int.from_bytes(RV[234:237], byteorder="little") == 1):
-                self.xyzmove(direction='z',distance=-1,speed=30)
+        # while abs(self.force_data[2] - self.force_data_init[2]) <= force:
+        #     RV = self.Con_SOCKETINFO.recv(1024)
+        #     if (int.from_bytes(RV[234:237], byteorder="little") == 1):
+        #         self.xyzmove(direction='z',distance=-1,speed=30)
         
         print("force adjust success")
         rospy.sleep(1)
@@ -193,17 +192,18 @@ class motion:
     def scrape(self,distance,speed):
 
         #scrape 30
-        self.xyzmove(direction='x',distance=distance,speed=int(speed))
+        self.xyzmove(direction='y',distance=distance,speed=int(speed))
         self.is_recording = False
         rospy.sleep(1)
       
         
         #after scrape top 40
-        self.xyzmove(direction='z',distance=40,speed=20)
+        self.xyzmove(direction='z',distance=80,speed=20)
        
 
         
     def drop_knife(self):
+        
         drop_pos=[286.0150756835937, -276.2381286621093, 400.8870849609375, -178.0904541015625, 3.782169580459594, 166.8185272216797]
         #move to the drop dot
         self.dotmove(drop_pos,30)
