@@ -10,6 +10,7 @@ import time
 import numpy as np
 import pandas as pd
 import socket
+import re
 
 class motion:
 
@@ -25,11 +26,13 @@ class motion:
         self.force_data = [0.0,0.0,0.0,0.0,0.0,0.0]
         self.speed = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         self.force_data_init = [0.0,0.0,0.0,0.0,0.0,0.0]
+        self.TempHimudity_data=[]
         self.timeinit = time.time()
         self.is_recording = False
         self.force_table = pd.DataFrame(columns=['Fx','Fy','Fz','Mx','My','Mz'])
         self.speed_table = pd.DataFrame(columns=['Speed x','Speed y','Speed z','OriSpeed x','OriSpeed y','OriSpeed z','线性速度','姿态速度'])
         self.time_table = pd.DataFrame(columns=['time'])
+        self.TempHimudity_table=pd.DataFrame(columns=['time_day','time','temperature','humidity'])
 
         ip = '192.168.58.2'
         self.Con_SOCKET = socket.socket()            
@@ -71,6 +74,8 @@ class motion:
             self.robot.SetToolDO(0,0,0,0)
             self.robot.SetToolDO(1,1,0,0)
 
+        
+
 
         
     # 力传感器回调函数，记录力传感器数据
@@ -78,6 +83,12 @@ class motion:
         timenow = [0.0]
         timenow[0] = time.time()-self.timeinit
         self.force_data = force_msg.data
+        
+        with open('/media/sunny/disk/LOG.TXT', 'r', encoding='gbk', errors='replace') as file:
+            tail_lines = ['', '']  # 用于存储最后两行的数组
+            for line in file:
+                tail_lines[0], tail_lines[1] = tail_lines[1], line.strip()
+        self.TempHimudity_data=[s for s in re.split(r'[ ,\x00]+', tail_lines[0]) if s]
         
         force_pddata = pd.Series(self.force_data,index=['Fx','Fy','Fz','Mx','My','Mz'])
         if self.is_recording == True:
@@ -99,6 +110,13 @@ class motion:
             self.time_table = pd.concat([
                 self.time_table.dropna(axis=1, how='all'),
                 time_data_table.dropna(axis=1, how='all')
+            ], axis=0, ignore_index=True) 
+
+            temp_pddata = pd.Series(self.TempHimudity_data, index=['time_day','time','temperature','humidity'])
+            temp_data_table = temp_pddata.to_frame().T
+            self.TempHimudity_table = pd.concat([
+                self.TempHimudity_table.dropna(axis=1, how='all'),
+                temp_data_table.dropna(axis=1, how='all')
             ], axis=0, ignore_index=True)   
 
     def dotmove(self,desc_pos,speed):  
@@ -151,9 +169,12 @@ class motion:
 
 
     def move_to_begin(self,i,force):
-        #begin
-        J1=[110.7085678100586, -344.7763671875, 292.5274047851562, -178.5812835693359, 0.40011101961135864, 136.7396697998047]
+        #begin_刮槽
+        #J1=[110.7085678100586, -344.7763671875, 292.5274047851562, -178.5812835693359, 0.40011101961135864, 136.7396697998047]
+        #begin_凹凸平面
+        #J1=[144.1961364746093, -350.0, 295.5707092285156, -177.534469604492, -1.23043656349182, 138.5585021972656]
         #top 14
+        J1=self.robot.GetActualTCPPose(1)[1]
         J2=J1.copy()
         J2[2]+=40
 
@@ -219,3 +240,4 @@ class motion:
         self.force_table = self.force_table.drop(self.force_table.index,inplace=True)
         self.speed_table = self.speed_table.drop(self.speed_table.index,inplace=True)
         self.time_table = self.time_table.drop(self.time_table.index,inplace=True)
+        self.TempHimudity_table = self.TempHimudity_table.drop(self.TempHimudity_table.index,inplace=True)
