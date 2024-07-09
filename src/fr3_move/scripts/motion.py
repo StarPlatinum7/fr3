@@ -24,6 +24,7 @@ class motion:
         # 初始化变量
         self.robot = Robot.RPC('192.168.58.2')
         self.force_data = [0.0,0.0,0.0,0.0,0.0,0.0]
+        self.force_temp = [0.0,0.0,0.0,0.0,0.0,0.0]
         self.speed = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         self.force_data_init = [0.0,0.0,0.0,0.0,0.0,0.0]
         self.TempHimudity_data=[]
@@ -89,7 +90,18 @@ class motion:
             for line in file:
                 tail_lines[0], tail_lines[1] = tail_lines[1], line.strip()
         self.TempHimudity_data=[s for s in re.split(r'[ ,\x00]+', tail_lines[0]) if s]
-        
+
+        #perceive_paper----------------
+        if(abs(self.force_data[1]-self.force_temp[1])>=0.01 and abs(self.force_data[2]-self.force_temp[2])>=0.01 and self.force_temp[1]!=0):
+            #print("检测到纸张")
+            print("Fx="+str(self.force_data[0]-self.force_temp[0])+"  Fy="+str(self.force_data[1]-self.force_temp[1])+"  Fz="+str(self.force_data[2]-self.force_temp[2]))
+
+        #记录上一次的记录的xyz的力
+        self.force_temp[0]=self.force_data[0]
+        self.force_temp[1]=self.force_data[1]
+        self.force_temp[2]=self.force_data[2]
+        #---------------------------------
+
         force_pddata = pd.Series(self.force_data,index=['Fx','Fy','Fz','Mx','My','Mz'])
         if self.is_recording == True:
             force_data_table = force_pddata.to_frame().T
@@ -167,29 +179,55 @@ class motion:
         self.catcher(False)
         rospy.sleep(1)
 
+    def perceive_paper(self):
+        #感知滤纸
+        J1=[177.4608459472656, -251.018096923828, 563.4210815429688, -146.0743713378906, 34.1943016052246, 143.4192504882812]
+        self.dotmove(J1,20)
+
+        #记录开始时力传感器数据
+        self.force_data_init = self.force_data
+        # 开始记录数据
+        self.is_recording = True
+        self.timeinit = time.time()
+        
+        print("force adjust success")
+        rospy.sleep(1)
+
+
+        #感知滤纸部分
+        J2=J1.copy()
+        J2[2]-=80
+        J2[1]-=80
+        self.dotmove(J2,20)
+        self.is_recording=False
+        rospy.sleep(1)
+        
+
 
     def move_to_begin(self,i,force):
         #begin_刮槽
         #J1=[110.7085678100586, -344.7763671875, 292.5274047851562, -178.5812835693359, 0.40011101961135864, 136.7396697998047]
+        
         #begin_凹凸平面
-        #J1=[144.1961364746093, -350.0, 295.5707092285156, -177.534469604492, -1.23043656349182, 138.5585021972656]
-        #top 14
-        J1=self.robot.GetActualTCPPose(1)[1]
+        J1=[144.1961364746093, -350.0, 295.5707092285156, -177.534469604492, -1.23043656349182, 138.5585021972656]
+        
+        
+        
+        # #以当前位置上40作为起始点
+        # J1=self.robot.GetActualTCPPose(1)[1]
+
+
         J2=J1.copy()
         J2[2]+=40
-
         self.dotmove(J2,20)
+
         rospy.sleep(1)
 
         #move to the begin position
         self.xyzmove(direction='z',distance=-40,speed=20)
         
         #通过距离改变刮刀的力
-        # if i <= 20:
-        #     self.xyzmove(direction='z',distance=-1*25*i,speed=5)
-        # else:
-        #     self.xyzmove(direction='z',distance=(25*(i-10)),speed=5)
-        # self.xyzmove(direction='z',distance=-85,speed=10)
+        #to be continue
 
         # rospy.sleep(3)
 
@@ -198,6 +236,8 @@ class motion:
         # 开始记录数据
         self.is_recording = True
         self.timeinit = time.time()
+        print(self.force_data_init)
+        print(self.force_data)
         # 微调距离
         # while abs(self.force_data[2] - self.force_data_init[2]) <= force:
         #     RV = self.Con_SOCKETINFO.recv(1024)
@@ -206,6 +246,8 @@ class motion:
         
         print("force adjust success")
         rospy.sleep(1)
+
+    
        
         
 
@@ -216,10 +258,11 @@ class motion:
         self.xyzmove(direction='y',distance=distance,speed=int(speed))
         self.is_recording = False
         rospy.sleep(1)
-      
+
         
         #after scrape top 40
         self.xyzmove(direction='z',distance=80,speed=20)
+
        
 
         

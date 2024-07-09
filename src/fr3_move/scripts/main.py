@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
         action = motion()
         #match.catcher(False)
-        action.catch_knife()
+        #action.catch_knife()
         # 循环20次1
         x = input("请输入实验次数：")
         for i in range(int(x)):
@@ -35,12 +35,14 @@ if __name__ == "__main__":
                 #experiment begin
                 #action.catch_knife()
 
-                action.move_to_begin(i,force)
-                action.scrape(distance,2/speed)
+                # action.move_to_begin(i,force)
+                # action.scrape(distance,2/speed)
 
-                action.get_state()
+                # action.get_state()
 
-                #action.drop_knife()
+                # action.drop_knife()
+
+                action.perceive_paper()
 
                 # 保存数据
                 now = time.strftime('%m%d-%H%M%S', time.localtime())
